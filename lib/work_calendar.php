@@ -21,7 +21,7 @@ class WorkCalendar {
 		$timestamp = $dateHelper->getDateTimestamp($date);
 		$dayOfWeek = date("w",$timestamp);
 		if ($dayOfWeek==0) $dayOfWeek = 7;
-		$res = WorkCalendarTable::getList(array(
+		$res = WorkCalendarTable::getOne(array(
 			'filter' => array(
 				'DAY' => intval($day),
 				'MONTH' => intval($month),
@@ -43,7 +43,7 @@ class WorkCalendar {
 		else
 		{
 			//Если дата найдена - смотрим выходной день или нет по флагу
-			if ($res[0]["WEEKEND"] == "Y" || $res[0]["WEEKEND"]===true)
+			if ($res["WEEKEND"] == "Y" || $res["WEEKEND"]===true)
 			{
 				return true;
 			}
@@ -79,16 +79,21 @@ class WorkCalendar {
 			$day = intval(date("d",$mktime));
 			$month = intval(date ("m",$mktime));
 			$year = intval(date("Y",$mktime));
-			if ($res = WorkCalendarTable::getList(array(
+			$res = WorkCalendarTable::getList(array(
 				"filter" => array(
 					"DAY" => $day,
 					"MONTH" => $month,
 					"YEAR" => $year,
 					"WEEKEND" => $weekend
 				)
-			)))
+			));
+			if ($res && isset($res[0]))
 			{
-				if ($res[0]["WEEKEND"])
+				$res = $res[0];
+			}
+			if ($res)
+			{
+				if ($res["WEEKEND"])
 					$arReturn[$day.".".$month.".".$year] = 'Y';
 				else
 					$arReturn[$day.".".$month.".".$year] = 'N';
